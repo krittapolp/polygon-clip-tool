@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RF Polygon Clip Tool</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-title">RF Polygon Clip Tool</span>
+    <span class="brand-sub">ตัดข้อมูล CSV ด้วย cluster polygon (.kmz) แล้วดูผลบนแผนที่</span>
+  </div>
+  <button id="resetAll" class="btn-danger">ล้างทั้งหมด / เริ่มใหม่</button>
+</header>
+
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <section class="panel">
+      <h3>1. ไฟล์ CSV ข้อมูลดิบ</h3>
+      <p class="hint">เลือกไฟล์ CSV กี่ไฟล์ก็ได้ (ไม่สนใจชื่อไฟล์) ทุกไฟล์ต้องมีคอลัมน์ center_longitude, center_latitude, Polygon</p>
+      <input type="file" id="csvInput" accept=".csv" multiple>
+      <ul class="dataset-list" id="datasetList"></ul>
+      <button id="clearAllCsv" class="btn-secondary" hidden>ล้างไฟล์ CSV ทั้งหมด</button>
+    </section>
+
+    <section class="panel">
+      <h3>2. Cluster polygon (.kmz/.kml)</h3>
+      <input type="file" id="kmzInput" accept=".kmz,.kml">
+      <div class="kmz-status" id="kmzStatus">ยังไม่ได้โหลด polygon</div>
+      <button id="clearKmz" class="btn-secondary" hidden>ลบ polygon ที่โหลดไว้</button>
+    </section>
+
+    <section class="panel" id="clusterPanel" hidden>
+      <h3>เลือก cluster ที่จะตัด</h3>
+      <input type="text" id="clusterSearch" placeholder="ค้นหา cluster ID">
+      <div class="cluster-actions">
+        <button id="selectAllClusters" class="btn-sm">Select all</button>
+        <button id="clearClusterSelection" class="btn-sm">Clear selection</button>
+      </div>
+      <div class="cluster-list" id="clusterList"></div>
+      <button id="applyClip" class="btn-primary">Apply cluster clip</button>
+      <button id="resetClip" class="btn-secondary">Show all (no clip)</button>
+      <div class="clip-progress" id="clipProgress" hidden>
+        <div class="clip-progress-bar"><div class="clip-progress-fill" id="clipProgressFill"></div></div>
+        <span id="clipProgressText"></span>
+      </div>
+      <div class="clip-summary" id="clipSummary"></div>
+    </section>
+
+    <section class="panel" id="exportPanel" hidden>
+      <h3>Export</h3>
+      <p class="hint">Export ข้อมูลปัจจุบัน (หลังตัด polygon แล้ว ถ้ามี) กลับเป็น CSV รูปแบบเดิม</p>
+      <button id="exportAllZip" class="btn-primary">Export ทุกไฟล์ (zip)</button>
+    </section>
+
+  </aside>
+
+  <main class="content">
+    <div id="mapContainer"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="vendor/papaparse.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
+
+<script src="js/utils.js"></script>
+<script src="js/state.js"></script>
+<script src="js/csvLoader.js"></script>
+<script src="js/kmzLoader.js"></script>
+<script src="js/clipping.js"></script>
+<script src="js/mapView.js"></script>
+<script src="js/exportCsv.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
