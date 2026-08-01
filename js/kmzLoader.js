@@ -15,7 +15,19 @@ function parseKmlCoordinates(text) {
   }).filter(p => Number.isFinite(p[0]) && Number.isFinite(p[1]));
 }
 
-// Parses a KML Document string into an array of { id, ring, bbox }.
+function ringFromLinearRing(linearRingEl) {
+  if (!linearRingEl) return null;
+  const coordsEl = linearRingEl.getElementsByTagName('coordinates')[0];
+  if (!coordsEl) return null;
+  const ring = parseKmlCoordinates(coordsEl.textContent);
+  return ring.length >= 3 ? ring : null;
+}
+
+// Parses a KML Document string into an array of { id, ring, holes, bbox }.
+// A KML <Polygon> has exactly one <outerBoundaryIs> and zero or more <innerBoundaryIs>
+// (holes) — e.g. a buffered drive-test route often has many holes where the buffer
+// self-intersects at sharp turns. Google Earth draws every ring; a parser that only reads
+// the first <coordinates> misses the holes and produces a different (wrong, for clipping) shape.
 App.parseKmlClusters = function parseKmlClusters(kmlText) {
   const doc = new DOMParser().parseFromString(kmlText, 'text/xml');
   const placemarks = Array.from(doc.getElementsByTagName('Placemark'));
@@ -26,10 +38,16 @@ App.parseKmlClusters = function parseKmlClusters(kmlText) {
   for (const pm of placemarks) {
     const polygonEl = pm.getElementsByTagName('Polygon')[0];
     if (!polygonEl) continue;
-    const coordsEl = polygonEl.getElementsByTagName('coordinates')[0];
-    if (!coordsEl) continue;
-    const ring = parseKmlCoordinates(coordsEl.textContent);
-    if (ring.length < 3) continue;
+
+    const outerEl = polygonEl.getElementsByTagName('outerBoundaryIs')[0];
+    const ring = ringFromLinearRing(outerEl && outerEl.getElementsByTagName('LinearRing')[0]);
+    if (!ring) continue;
+
+    const holes = [];
+    for (const innerEl of Array.from(polygonEl.getElementsByTagName('innerBoundaryIs'))) {
+      const hole = ringFromLinearRing(innerEl.getElementsByTagName('LinearRing')[0]);
+      if (hole) holes.push(hole);
+    }
 
     const nameEl = pm.getElementsByTagName('name')[0];
     const descEl = pm.getElementsByTagName('description')[0];
@@ -46,6 +64,7 @@ App.parseKmlClusters = function parseKmlClusters(kmlText) {
     clusters.push({
       id,
       ring,
+      holes,
       bbox: App.bboxOfRing(ring)
     });
   }

@@ -94,7 +94,10 @@ App.renderClusterLayer = function renderClusterLayer() {
   const selected = App.state.selectedClusterIds;
   for (const c of App.state.clusters) {
     const isSelected = selected.has(c.id);
-    const latlngs = c.ring.map(([lon, lat]) => [lat, lon]);
+    const outerLatLngs = c.ring.map(([lon, lat]) => [lat, lon]);
+    // Leaflet renders holes correctly (even-odd fill) when given [outer, hole1, hole2, ...].
+    const holeLatLngs = (c.holes || []).map(hole => hole.map(([lon, lat]) => [lat, lon]));
+    const latlngs = holeLatLngs.length ? [outerLatLngs, ...holeLatLngs] : outerLatLngs;
     const poly = L.polygon(latlngs, {
       renderer: App._mapClusterRenderer,
       color: isSelected ? '#38bdf8' : '#64748b',

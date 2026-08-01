@@ -53,6 +53,19 @@ App.pointInRing = function pointInRing(x, y, ring) {
   return inside;
 };
 
+// A KML Polygon can carry holes (innerBoundaryIs) inside its outer ring — e.g. a buffered
+// drive-test route often has small holes where the buffer self-intersects at sharp turns.
+// A point only counts as "inside" the polygon if it's in the outer ring and NOT in any hole.
+App.pointInPolygonWithHoles = function pointInPolygonWithHoles(x, y, ring, holes) {
+  if (!App.pointInRing(x, y, ring)) return false;
+  if (holes) {
+    for (const hole of holes) {
+      if (App.pointInRing(x, y, hole)) return false;
+    }
+  }
+  return true;
+};
+
 // Uniform grid over a set of {bbox} items, so point lookups only test the handful
 // of items whose bbox overlaps the point's cell instead of every item.
 App.buildSpatialIndex = function buildSpatialIndex(items) {

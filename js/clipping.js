@@ -7,7 +7,7 @@ function pointInAnyCluster(lon, lat, index) {
   if (!candidates) return null;
   for (const c of candidates) {
     if (!App.pointInBbox(lon, lat, c.bbox)) continue;
-    if (App.pointInRing(lon, lat, c.ring)) return c.id;
+    if (App.pointInPolygonWithHoles(lon, lat, c.ring, c.holes)) return c.id;
   }
   return null;
 }
