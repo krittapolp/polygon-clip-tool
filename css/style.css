@@ -36,7 +36,8 @@ body {
 }
 .brand-title { font-size: 18px; font-weight: 700; margin-right: 10px; }
 .brand-sub { font-size: 12px; color: var(--text-dim); }
-.brand-by { color: #dc2626; font-size: 12px; margin-left: 12px; }
+.brand-by { color: var(--text-dim); font-size: 12px; margin-left: 12px; }
+.brand-company { font-family: 'Arial Black', Arial, sans-serif; color: #dc2626; }
 
 .layout { display: flex; flex: 1; min-height: 0; }
 
